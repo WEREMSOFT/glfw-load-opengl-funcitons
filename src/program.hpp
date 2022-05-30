@@ -4,7 +4,7 @@
 #include <iostream>
 
 #include "glFunctionLoader.hpp"
-#include "shader.hpp"
+// #include "shader.hpp"
 class Program
 {
     GLFWwindow *window;
