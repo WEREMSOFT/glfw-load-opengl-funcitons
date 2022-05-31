@@ -1,6 +1,11 @@
 #version 330 core
-out vec2 texCoord;
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aTexCoord;
+
+out vec2 TexCoord;
+
 void main()
 {
-    texCoord = gl_MultiTexCoord0.xy;
+	gl_Position = vec4(aPos, 1.0);
+	TexCoord = vec2(aTexCoord.x, aTexCoord.y);
 }
