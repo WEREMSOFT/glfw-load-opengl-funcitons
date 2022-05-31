@@ -5,7 +5,7 @@ FLAGS = -g -O0
 LIBS = -lglfw -lGL
 TARGET = bin/main.bin
 
-all: clean $(OBJ)
+all: clean copy_assets $(OBJ)
 	$(CC) $(FLAGS) $(OBJ) -o $(TARGET) $(LIBS)
 
 clean:
@@ -16,3 +16,6 @@ clean:
 
 run_main: all
 	$(TARGET)
+
+copy_assets:
+	cp -rf assets bin
