@@ -62,6 +62,12 @@ void (*DeleteBuffers)(GLsizei n,
 
 void (*DeleteProgram)(GLuint program);
 
+GLint (*glGetUniformLocation)(GLuint program, const GLchar *uniformName);
+
+void (*glUniform2f)(GLuint id, GLfloat x, GLfloat y);
+void (*glUniform3f)(GLuint id, GLfloat x, GLfloat y, GLfloat z);
+void (*glUniform2i)(GLuint id, GLuint x, GLuint y);
+
 #define bindFunctionRef(a, b)                \
     ({                                       \
         auto p = a;                          \
@@ -78,6 +84,11 @@ void (*DeleteProgram)(GLuint program);
 
 void loadOpenGLFunctions(void)
 {
+
+    bindFunction(glUniform2f, void (*)(GLuint id, GLfloat x, GLfloat y));
+    bindFunction(glUniform3f, void (*)(GLuint id, GLfloat x, GLfloat y, GLfloat z));
+    bindFunction(glUniform2i, void (*)(GLuint id, GLuint x, GLuint y));
+    bindFunction(glGetUniformLocation, GLint(*)(GLuint program, const GLchar *uniformName));
     bindFunctionRef(glClear, void (*)(GLbitfield));
     bindFunctionRef(glClearColor, void (*)(GLclampf r, GLclampf g, GLclampf b, GLclampf a));
     bindFunction(glCreateShader, GLuint(*)(GLenum shaderType));

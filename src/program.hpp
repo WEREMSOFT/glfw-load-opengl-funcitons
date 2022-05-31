@@ -4,6 +4,10 @@
 #include <iostream>
 
 #include "glFunctionLoader.hpp"
+
+#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 600
+
 class Program
 {
     GLFWwindow *window;
@@ -20,7 +24,7 @@ public:
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-        window = glfwCreateWindow(640, 480, "HEllo World!!", NULL, NULL);
+        window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "HEllo World!!", NULL, NULL);
 
         if (!window)
         {
@@ -67,6 +71,8 @@ public:
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
 
+        char *uniformName = "screenSize";
+
         // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -86,6 +92,8 @@ public:
 
             // draw our first triangle
             glUseProgram(shaderProgram);
+            GLint uniformScreenSizeLocation = glGetUniformLocation(shaderProgram, uniformName);
+            glUniform3f(uniformScreenSizeLocation, SCREEN_WIDTH, SCREEN_HEIGHT, 1.0);
             glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
             // glDrawArrays(GL_TRIANGLES, 0, 6);
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
