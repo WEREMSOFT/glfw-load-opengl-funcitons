@@ -5,8 +5,8 @@
 
 #include "glFunctionLoader.hpp"
 
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 600
+#define SCREEN_WIDTH 1024
+#define SCREEN_HEIGHT 768
 
 class Program
 {
@@ -94,6 +94,10 @@ public:
             glUseProgram(shaderProgram);
             GLint uniformScreenSizeLocation = glGetUniformLocation(shaderProgram, "iResolution");
             glUniform3f(uniformScreenSizeLocation, SCREEN_WIDTH, SCREEN_HEIGHT, 1.0);
+
+            GLint timeUniformLocation = glGetUniformLocation(shaderProgram, "iTime");
+            glUniform1f(timeUniformLocation, glfwGetTime());
+
             glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
             // glDrawArrays(GL_TRIANGLES, 0, 6);
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

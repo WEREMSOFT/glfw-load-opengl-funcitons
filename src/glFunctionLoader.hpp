@@ -64,6 +64,7 @@ void (*DeleteProgram)(GLuint program);
 
 GLint (*glGetUniformLocation)(GLuint program, const GLchar *uniformName);
 
+void (*glUniform1f)(GLuint id, GLfloat x);
 void (*glUniform2f)(GLuint id, GLfloat x, GLfloat y);
 void (*glUniform3f)(GLuint id, GLfloat x, GLfloat y, GLfloat z);
 void (*glUniform2i)(GLuint id, GLuint x, GLuint y);
@@ -85,6 +86,7 @@ void (*glUniform2i)(GLuint id, GLuint x, GLuint y);
 void loadOpenGLFunctions(void)
 {
 
+    bindFunction(glUniform1f, void (*)(GLuint id, GLfloat x));
     bindFunction(glUniform2f, void (*)(GLuint id, GLfloat x, GLfloat y));
     bindFunction(glUniform3f, void (*)(GLuint id, GLfloat x, GLfloat y, GLfloat z));
     bindFunction(glUniform2i, void (*)(GLuint id, GLuint x, GLuint y));
