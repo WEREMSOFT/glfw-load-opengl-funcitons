@@ -67,6 +67,7 @@ GLint (*glGetUniformLocation)(GLuint program, const GLchar *uniformName);
 void (*glUniform1f)(GLuint id, GLfloat x);
 void (*glUniform2f)(GLuint id, GLfloat x, GLfloat y);
 void (*glUniform3f)(GLuint id, GLfloat x, GLfloat y, GLfloat z);
+void (*glUniform4f)(GLuint id, GLfloat x, GLfloat y, GLfloat z, GLfloat w);
 void (*glUniform2i)(GLuint id, GLuint x, GLuint y);
 
 #define bindFunctionRef(a, b)                \
@@ -89,6 +90,7 @@ void loadOpenGLFunctions(void)
     bindFunction(glUniform1f, void (*)(GLuint id, GLfloat x));
     bindFunction(glUniform2f, void (*)(GLuint id, GLfloat x, GLfloat y));
     bindFunction(glUniform3f, void (*)(GLuint id, GLfloat x, GLfloat y, GLfloat z));
+    bindFunction(glUniform4f, void (*)(GLuint id, GLfloat x, GLfloat y, GLfloat z, GLfloat w));
     bindFunction(glUniform2i, void (*)(GLuint id, GLuint x, GLuint y));
     bindFunction(glGetUniformLocation, GLint(*)(GLuint program, const GLchar *uniformName));
     bindFunctionRef(glClear, void (*)(GLbitfield));
