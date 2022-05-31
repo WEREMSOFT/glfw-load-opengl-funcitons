@@ -2,9 +2,9 @@
 out vec4 FragColor;
 
 in vec2 TexCoord;
-uniform vec3 screenSize;
+uniform vec3 iResolution;
 
-#define RES 2
+#define RES 16
 
 float xor(vec2 p)
 {
@@ -18,17 +18,14 @@ float xor(vec2 p)
 }
 
 
-vec4 mainImage(vec2 fragCoord )
+void mainImage(out vec4 fragColor, vec2 fragCoord )
 {
     float r = pow(2., float(RES));
-    vec2  p = floor(fragCoord.xy / screenSize.xy * r);
-    return vec4(vec3(xor(p) / r), 1);
+    vec2  p = floor(fragCoord.xy / iResolution.xy * r);
+    fragColor = vec4(vec3(xor(p) / r), 1);
 }
 
 void main()
 {
-	// linearly interpolate between both textures (80% container, 20% awesomeface)
-	// FragColor = vec4(screenSize.xy/TexCoord, 0, 1.f);
-    // FragColor = vec4(screenSize, 0, 1.f);
-	FragColor = mainImage(TexCoord);
+	mainImage(FragColor, TexCoord * iResolution.xy);
 }
