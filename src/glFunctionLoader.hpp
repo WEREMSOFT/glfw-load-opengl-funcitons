@@ -69,6 +69,7 @@ void (*glUniform2f)(GLuint id, GLfloat x, GLfloat y);
 void (*glUniform3f)(GLuint id, GLfloat x, GLfloat y, GLfloat z);
 void (*glUniform4f)(GLuint id, GLfloat x, GLfloat y, GLfloat z, GLfloat w);
 void (*glUniform2i)(GLuint id, GLuint x, GLuint y);
+void (*glUniform1i)(GLuint id, GLint x);
 
 #define bindFunctionRef(a, b)                \
     ({                                       \
@@ -86,7 +87,7 @@ void (*glUniform2i)(GLuint id, GLuint x, GLuint y);
 
 void loadOpenGLFunctions(void)
 {
-
+    bindFunction(glUniform1i, void (*)(GLuint id, GLint x));
     bindFunction(glUniform1f, void (*)(GLuint id, GLfloat x));
     bindFunction(glUniform2f, void (*)(GLuint id, GLfloat x, GLfloat y));
     bindFunction(glUniform3f, void (*)(GLuint id, GLfloat x, GLfloat y, GLfloat z));

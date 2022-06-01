@@ -82,9 +82,10 @@ public:
         // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
         // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
         glBindVertexArray(0);
-
+        int frame = 0;
         while (!glfwWindowShouldClose(window))
         {
+            frame++;
             // render
             // ------
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -100,6 +101,9 @@ public:
 
             double xpos, ypos;
             glfwGetCursorPos(window, &xpos, &ypos);
+
+            GLint frameUniformLocation = glGetUniformLocation(shaderProgram, "iFrame");
+            glUniform1i(frameUniformLocation, frame);
 
             GLint mouseUniformLocation = glGetUniformLocation(shaderProgram, "iMouse");
             glUniform4f(mouseUniformLocation, xpos, ypos, 0, 0);
