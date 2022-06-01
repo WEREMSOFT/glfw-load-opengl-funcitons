@@ -5,8 +5,8 @@
 
 #include "glFunctionLoader.hpp"
 
-#define SCREEN_WIDTH 1024
-#define SCREEN_HEIGHT 768
+#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 600
 
 class Program
 {
@@ -38,7 +38,7 @@ public:
 
         // build and compile our shader program
         // ------------------------------------
-        shaderProgram = shaderProgramCreateFromFiles("assets/shader.vs", "assets/shader.fs");
+        shaderProgram = shaderProgramCreateFromFilesShadertoy("assets/shader.vs", "assets/shader.fs");
     }
 
     void runMailLoop(void)
