@@ -13,6 +13,15 @@ class Program
     GLFWwindow *window;
     unsigned int shaderProgram;
     unsigned int VBO, VAO, EBO;
+    inline static int screenWidth = SCREEN_WIDTH;
+    inline static int screenHeight = SCREEN_HEIGHT;
+
+    static void frameBufferSizeCallback(GLFWwindow *window, int width, int height)
+    {
+        screenWidth = width;
+        screenHeight = height;
+        glViewport(0, 0, width, height);
+    }
 
 public:
     Program(void)
@@ -24,7 +33,7 @@ public:
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-        window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "HEllo World!!", NULL, NULL);
+        window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Hello World!!", NULL, NULL);
 
         if (!window)
         {
@@ -34,7 +43,7 @@ public:
 
         glfwMakeContextCurrent(window);
         loadOpenGLFunctions();
-        glClearColor(1.f, 0, 0, 1.f);
+        glfwSetFramebufferSizeCallback(window, frameBufferSizeCallback);
 
         // build and compile our shader program
         // ------------------------------------
@@ -90,15 +99,10 @@ public:
             }
 
             frame++;
-            // render
-            // ------
-            glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
 
-            // draw our first triangle
             glUseProgram(shaderProgram);
             GLint uniformScreenSizeLocation = glGetUniformLocation(shaderProgram, "iResolution");
-            glUniform3f(uniformScreenSizeLocation, SCREEN_WIDTH, SCREEN_HEIGHT, 1.0);
+            glUniform3f(uniformScreenSizeLocation, Program::screenWidth, Program::screenHeight, 1.0);
 
             GLint timeUniformLocation = glGetUniformLocation(shaderProgram, "iTime");
             glUniform1f(timeUniformLocation, glfwGetTime());
@@ -112,10 +116,8 @@ public:
             GLint mouseUniformLocation = glGetUniformLocation(shaderProgram, "iMouse");
             glUniform4f(mouseUniformLocation, xpos, ypos, 0, 0);
 
-            glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
-            // glDrawArrays(GL_TRIANGLES, 0, 6);
+            glBindVertexArray(VAO);
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-            // glBindVertexArray(0); // no need to unbind it every time
 
             // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
             // -------------------------------------------------------------------------------

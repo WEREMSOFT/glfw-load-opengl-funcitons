@@ -74,6 +74,8 @@ void (*glUniform4f)(GLuint id, GLfloat x, GLfloat y, GLfloat z, GLfloat w);
 void (*glUniform2i)(GLuint id, GLuint x, GLuint y);
 void (*glUniform1i)(GLuint id, GLint x);
 
+// void (*glViewport)(GLint x, GLint y, GLsizei width, GLsizei height);
+
 #define bindFunctionRef(a, b)                \
     {                                        \
         auto p = a;                          \
@@ -87,6 +89,7 @@ void (*glUniform1i)(GLuint id, GLint x);
 
 void loadOpenGLFunctions(void)
 {
+    bindFunctionRef(glViewport, void (*)(GLint x, GLint y, GLsizei width, GLsizei height));
     bindFunction(glUniform1i, void (*)(GLuint id, GLint x));
     bindFunction(glUniform1f, void (*)(GLuint id, GLfloat x));
     bindFunction(glUniform2f, void (*)(GLuint id, GLfloat x, GLfloat y));

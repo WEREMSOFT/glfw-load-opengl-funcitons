@@ -3,6 +3,7 @@
 mkdir bin
 pushd src
 cl -Zi ^
+   /std:c++17 ^
    /I C:\projects\cpp\libs\glfw\include ^
     main.cpp ^
     ..\..\libs\glfw\lib-vc2022\glfw3dll.lib ^
