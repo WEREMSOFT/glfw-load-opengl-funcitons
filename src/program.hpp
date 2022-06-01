@@ -71,8 +71,6 @@ public:
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
 
-        char *uniformName = "screenSize";
-
         // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -85,6 +83,12 @@ public:
         int frame = 0;
         while (!glfwWindowShouldClose(window))
         {
+
+            if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+            {
+                glfwSetWindowShouldClose(window, true);
+            }
+
             frame++;
             // render
             // ------

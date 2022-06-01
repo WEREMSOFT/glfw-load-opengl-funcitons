@@ -2,18 +2,7 @@
 
 #include <GL/gl.h>
 #include <string.h>
-
-#ifndef GLchar
-typedef char GLchar;
-typedef size_t GLsizeiptr;
-#define GL_COMPILE_STATUS 0x8B81
-#define GL_VERTEX_SHADER 0x8B31
-#define GL_FRAGMENT_SHADER 0x8B30
-#define GL_LINK_STATUS 0x8B82
-#define GL_ARRAY_BUFFER 0x8892
-#define GL_STATIC_DRAW 0x88E4
-#define GL_ELEMENT_ARRAY_BUFFER 0x8893
-#endif
+#include "windowsStuff.hpp"
 
 void (*glDeleteProgram)(GLuint program);
 void (*glDeleteBuffers)(GLsizei n,
@@ -184,7 +173,11 @@ static int shaderCreateFromFile(const char *fileName, unsigned int *vertexShader
         goto error_handler;
     }
 
-    fread(shaderCode, sizeof(char), fileSize, fp);
+    if (fread(shaderCode, sizeof(char), fileSize, fp) == 0)
+    {
+        printf("Error reading file: %s\n", fileName);
+        exit(-1);
+    }
 
     glShaderSource(*vertexShader, 1, (const char **)&shaderCode, NULL);
 
@@ -287,7 +280,11 @@ static int createShadertoyFSFromFile(const char *fileName, unsigned int *vertexS
         exit(-1);
     }
 
-    fread(shaderCode, sizeof(char), fileSize, fp);
+    if (fread(shaderCode, sizeof(char), fileSize, fp) == 0)
+    {
+        printf("Error reading file: %s\n", fileName);
+        exit(-1);
+    }
 
     std::string shaderCodeString(shaderCode);
 
