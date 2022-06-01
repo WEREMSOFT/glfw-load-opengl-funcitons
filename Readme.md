@@ -19,4 +19,4 @@ run make run_main on your linux distribution (windows build comming soon).
 
 Enjoy
 
-![alt text](docsImages/1.png)
+![alt text](docsImages/2.png)
