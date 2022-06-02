@@ -4,7 +4,7 @@ mkdir bin
 pushd src
 cl -Zi ^
    /std:c++17 ^
-   /I C:\projects\cpp\libs\glfw\include ^
+   /I ..\..\libs\glfw\include ^
     main.cpp ^
     ..\..\libs\glfw\lib-vc2022\glfw3dll.lib ^
     ..\..\libs\glfw\lib-vc2022\glfw3_mt.lib ^
@@ -13,7 +13,7 @@ cl -Zi ^
    -o ../bin/main.exe
 popd
 
-xcopy C:\projects\cpp\libs\glfw\lib-vc2022\glfw3.dll bin /Y
+xcopy ..\libs\glfw\lib-vc2022\glfw3.dll bin /Y
 xcopy assets bin\assets /E /H /C /I /Y
 
 pushd bin
