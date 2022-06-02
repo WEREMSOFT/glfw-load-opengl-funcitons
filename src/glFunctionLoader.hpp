@@ -249,6 +249,7 @@ static int createShadertoyFSFromFile(const char *fileName, unsigned int *vertexS
                                "uniform vec3 iResolution;\n"
                                "uniform float iTime;\n"
                                "uniform vec4 iMouse;\n"
+                               "uniform sampler2D texture1;\n"
                                "uniform int iFrame;\n";
 
     std::string shaderFooter = "void main(){\n"

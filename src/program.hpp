@@ -3,6 +3,8 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 #include "glFunctionLoader.hpp"
 
 #define SCREEN_WIDTH 800
@@ -48,6 +50,39 @@ public:
         // build and compile our shader program
         // ------------------------------------
         shaderProgram = shaderProgramCreateFromFilesShadertoy("assets/shader.vs", "assets/shader.fs");
+        // load textures
+        {
+            unsigned int texture1;
+            // texture 1
+            // ---------
+            glGenTextures(1, &texture1);
+            glBindTexture(GL_TEXTURE_2D, texture1);
+            // set the texture wrapping parameters
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // set texture wrapping to GL_REPEAT (default wrapping method)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            // set texture filtering parameters
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+            int width, height, nrChannels;
+            unsigned char *data = stbi_load("assets/wall.jpg", &width, &height, &nrChannels, 0);
+            if (data)
+            {
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+            }
+            else
+            {
+                std::cout << "Failed to load texture" << std::endl;
+                exit(-1);
+            }
+            stbi_image_free(data);
+
+            glGenTextures(1, &texture1);
+            glBindTexture(GL_TEXTURE_2D, texture1);
+
+            glUseProgram(shaderProgram);
+            glUniform1i(glGetUniformLocation(shaderProgram, "texture1"), 0);
+        }
     }
 
     void runMailLoop(void)
@@ -90,6 +125,8 @@ public:
         // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
         glBindVertexArray(0);
         int frame = 0;
+        glUseProgram(shaderProgram);
+
         while (!glfwWindowShouldClose(window))
         {
 
@@ -100,7 +137,6 @@ public:
 
             frame++;
 
-            glUseProgram(shaderProgram);
             GLint uniformScreenSizeLocation = glGetUniformLocation(shaderProgram, "iResolution");
             glUniform3f(uniformScreenSizeLocation, Program::screenWidth, Program::screenHeight, 1.0);
 
