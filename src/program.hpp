@@ -17,6 +17,7 @@ class Program
     unsigned int VBO, VAO, EBO;
     inline static int screenWidth = SCREEN_WIDTH;
     inline static int screenHeight = SCREEN_HEIGHT;
+    unsigned int texture[4];
 
     static void frameBufferSizeCallback(GLFWwindow *window, int width, int height)
     {
@@ -43,46 +44,7 @@ public:
             exit(-1);
         }
 
-        glfwMakeContextCurrent(window);
-        loadOpenGLFunctions();
-        glfwSetFramebufferSizeCallback(window, frameBufferSizeCallback);
-
-        // build and compile our shader program
-        // ------------------------------------
-        shaderProgram = shaderProgramCreateFromFilesShadertoy("assets/shader.vs", "assets/shader.fs");
-        // load textures
-        {
-            unsigned int texture1;
-            // texture 1
-            // ---------
-            glGenTextures(1, &texture1);
-            glBindTexture(GL_TEXTURE_2D, texture1);
-            // set the texture wrapping parameters
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // set texture wrapping to GL_REPEAT (default wrapping method)
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-            // set texture filtering parameters
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-            int width, height, nrChannels;
-            unsigned char *data = stbi_load("assets/wall.jpg", &width, &height, &nrChannels, 0);
-            if (data)
-            {
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-            }
-            else
-            {
-                std::cout << "Failed to load texture" << std::endl;
-                exit(-1);
-            }
-            stbi_image_free(data);
-
-            glGenTextures(1, &texture1);
-            glBindTexture(GL_TEXTURE_2D, texture1);
-
-            glUseProgram(shaderProgram);
-            glUniform1i(glGetUniformLocation(shaderProgram, "texture1"), 0);
-        }
+        loadAssets();
     }
 
     void runMailLoop(void)
@@ -118,14 +80,13 @@ public:
         // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-        // remember: do NOT unbind the EBO while a VAO is active as the bound element buffer object IS stored in the VAO; keep the EBO bound.
-        // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-        // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
-        // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
         glBindVertexArray(0);
         int frame = 0;
-        glUseProgram(shaderProgram);
+        GLint frameUniformLocation = glGetUniformLocation(shaderProgram, "iFrame");
+        GLint mouseUniformLocation = glGetUniformLocation(shaderProgram, "iMouse");
+        GLint timeUniformLocation = glGetUniformLocation(shaderProgram, "iTime");
+        GLint uniformScreenSizeLocation = glGetUniformLocation(shaderProgram, "iResolution");
+        double xpos, ypos;
 
         while (!glfwWindowShouldClose(window))
         {
@@ -137,19 +98,23 @@ public:
 
             frame++;
 
-            GLint uniformScreenSizeLocation = glGetUniformLocation(shaderProgram, "iResolution");
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, texture[0]);
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, texture[1]);
+            glActiveTexture(GL_TEXTURE2);
+            glBindTexture(GL_TEXTURE_2D, texture[2]);
+            glActiveTexture(GL_TEXTURE3);
+            glBindTexture(GL_TEXTURE_2D, texture[3]);
             glUniform3f(uniformScreenSizeLocation, Program::screenWidth, Program::screenHeight, 1.0);
 
-            GLint timeUniformLocation = glGetUniformLocation(shaderProgram, "iTime");
             glUniform1f(timeUniformLocation, glfwGetTime());
 
-            double xpos, ypos;
-            glfwGetCursorPos(window, &xpos, &ypos);
+            if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1))
+                glfwGetCursorPos(window, &xpos, &ypos);
 
-            GLint frameUniformLocation = glGetUniformLocation(shaderProgram, "iFrame");
             glUniform1i(frameUniformLocation, frame);
 
-            GLint mouseUniformLocation = glGetUniformLocation(shaderProgram, "iMouse");
             glUniform4f(mouseUniformLocation, xpos, ypos, 0, 0);
 
             glBindVertexArray(VAO);
@@ -169,5 +134,49 @@ public:
         glDeleteBuffers(1, &EBO);
         glDeleteProgram(shaderProgram);
         glfwTerminate();
+    }
+
+    void loadAssets()
+    {
+
+        glfwMakeContextCurrent(window);
+        loadOpenGLFunctions();
+        glfwSetFramebufferSizeCallback(window, frameBufferSizeCallback);
+
+        // build and compile our shader program
+        // ------------------------------------
+        shaderProgram = shaderProgramCreateFromFilesShadertoy("assets/shader.vs", "assets/shader.fs");
+        glUseProgram(shaderProgram);
+
+        loadTexture("assets/channel0.png", "iChannel0", 0, &texture[0]);
+        loadTexture("assets/channel1.png", "iChannel1", 1, &texture[1]);
+        loadTexture("assets/channel3.png", "iChannel2", 2, &texture[2]);
+        loadTexture("assets/channel2.png", "iChannel3", 3, &texture[3]);
+    }
+
+    void
+    loadTexture(const char *fileName, const char *channel, int textureLocation, unsigned int *textId)
+    {
+        glGenTextures(1, textId);
+        glBindTexture(GL_TEXTURE_2D, *textId);
+        // set the texture wrapping parameters
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // set texture wrapping to GL_REPEAT (default wrapping method)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        // set texture filtering parameters
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        int width, height, nrChannels;
+        unsigned char *data = stbi_load(fileName, &width, &height, &nrChannels, 0);
+        if (data)
+        {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        }
+        else
+        {
+            std::cout << "Failed to load texture" << std::endl;
+            exit(-1);
+        }
+        stbi_image_free(data);
+        glUniform1i(glGetUniformLocation(shaderProgram, channel), textureLocation);
     }
 };
