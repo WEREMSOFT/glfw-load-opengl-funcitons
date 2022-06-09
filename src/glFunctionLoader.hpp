@@ -243,16 +243,16 @@ unsigned int shaderProgramCreateFromFiles(const char *vertexShaderPath, const ch
 
 static int createShadertoyFSFromFile(const char *fileName, unsigned int *vertexShader, int shaderType)
 {
-    std::string shaderHeader = "#version 330 core\n"
-                               "out vec4 FragColor;\n"
-                               "in vec2 TexCoord;\n"
-                               "uniform vec3 iResolution;\n"
-                               "uniform float iTime;\n"
-                               "uniform vec4 iMouse;\n"
-                               "uniform sampler2D iChannel0;\n"
-                               "uniform sampler2D iChannel1;\n"
-                               "uniform sampler2D iChannel2;\n"
-                               "uniform sampler2D iChannel3;\n"
+    std::string shaderHeader = "#version 460 core\n"
+                               "out vec4 FragColor;"
+                               "in vec2 TexCoord;"
+                               "uniform vec3 iResolution;"
+                               "uniform float iTime;"
+                               "uniform vec4 iMouse;"
+                               "uniform sampler2D iChannel0;"
+                               "uniform sampler2D iChannel1;"
+                               "uniform sampler2D iChannel2;"
+                               "uniform sampler2D iChannel3;"
                                "uniform int iFrame;\n";
 
     std::string shaderFooter = "void main(){\n"

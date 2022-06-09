@@ -7,8 +7,8 @@
 #include "stb_image.h"
 #include "glFunctionLoader.hpp"
 
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 600
+#define SCREEN_WIDTH 640
+#define SCREEN_HEIGHT 360
 
 class Program
 {
@@ -86,7 +86,9 @@ public:
         GLint mouseUniformLocation = glGetUniformLocation(shaderProgram, "iMouse");
         GLint timeUniformLocation = glGetUniformLocation(shaderProgram, "iTime");
         GLint uniformScreenSizeLocation = glGetUniformLocation(shaderProgram, "iResolution");
-        double xpos, ypos;
+        double xPos, yPos;
+
+        bool firstRun = true;
 
         while (!glfwWindowShouldClose(window))
         {
@@ -110,12 +112,17 @@ public:
 
             glUniform1f(timeUniformLocation, glfwGetTime());
 
-            if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1))
-                glfwGetCursorPos(window, &xpos, &ypos);
-
+            if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) || firstRun)
+            {
+                firstRun = false;
+                glfwGetCursorPos(window, &xPos, &yPos);
+                int width, height;
+                glfwGetWindowSize(window, &width, &height);
+                yPos = height - yPos;
+            }
             glUniform1i(frameUniformLocation, frame);
 
-            glUniform4f(mouseUniformLocation, xpos, ypos, 0, 0);
+            glUniform4f(mouseUniformLocation, xPos, yPos, 0, 0);
 
             glBindVertexArray(VAO);
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

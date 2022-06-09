@@ -1,122 +1,98 @@
-mat2 rot(float x)
-{
-    return mat2(cos(x), sin(x), -sin(x), cos(x));
+// "RayMarching starting point" 
+// by Martijn Steinrucken aka The Art of Code/BigWings - 2020
+// The MIT License
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions: The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Email: countfrolic@gmail.com
+// Twitter: @The_ArtOfCode
+// YouTube: youtube.com/TheArtOfCodeIsCool
+// Facebook: https://www.facebook.com/groups/theartofcode/
+//
+// You can use this shader as a template for ray marching shaders
+
+#define MAX_STEPS 100
+#define MAX_DIST 100.
+#define SURF_DIST .001
+#define TAU 6.283185
+#define PI 3.141592
+#define S smoothstep
+#define T iTime
+
+mat2 Rot(float a) {
+    float s=sin(a), c=cos(a);
+    return mat2(c, -s, s, c);
 }
 
-float sdBox(vec3 p, vec3 b)
-{
-    vec3 d = abs(p) - b;
-    return min(max(d.x, max(d.y, d.z)), 0.0) + length(max(d, 0.0));
+float sdBox(vec3 p, vec3 s) {
+    p = abs(p)-s;
+	return length(max(p, 0.))+min(max(p.x, max(p.y, p.z)), 0.);
 }
 
-vec3 tri(vec3 x)
-{
-    return abs(2.0 * (x - floor(x + 0.5))) * 2.0 - 1.0;
-}
 
-float scale = 0.25;
-vec3 texw;
-float mapw;
-
-float map(vec3 p)
-{
-    mapw = 0.0;
-
-    p.x += sin(p.z * scale);
-    p.y += cos(p.z * scale) * sin(p.z * scale);
-
-    vec3 q = p;
-
-    float d = 1000.0;
-
-    vec3 s = vec3(1.0, 0.125, 0.125);
-
-    float u = 1.0;
-
-    float gt = p.z;
-
-    q = tri(q * 0.125);
-
-    const int n = 4;
-    for (int i = 0; i < n; ++i)
-    {
-
-        float fi = float(i) / float(n - 1);
-
-        q = abs(q) - u;
-
-        q.xy *= rot(q.z + gt);
-
-        float k = sdBox(q, s);
-
-        if (k < d)
-        {
-            d = k;
-            texw = q;
-            mapw = float(i);
-        }
-
-        s = s.yzx;
-        s *= 0.5;
-        u *= 0.5;
-    }
-
-    d = max(d, 2.0 - length(p.xy));
-
+float GetDist(vec3 p) {
+    float d = sdBox(p, vec3(1));
+    
     return d;
 }
 
-float trace(vec3 o, vec3 r)
-{
-    float t = 0.0;
-    for (int i = 0; i < 64; ++i)
-    {
-        t += map(o + r * t) * 0.5;
+float RayMarch(vec3 ro, vec3 rd) {
+	float dO=0.;
+    
+    for(int i=0; i<MAX_STEPS; i++) {
+    	vec3 p = ro + rd*dO;
+        float dS = GetDist(p);
+        dO += dS;
+        if(dO>MAX_DIST || abs(dS)<SURF_DIST) break;
     }
-    return t;
+    
+    return dO;
 }
 
-vec3 textex(sampler2D channel, vec3 p)
-{
-    vec3 ta = texture(channel, p.xy).xyz;
-    vec3 tb = texture(channel, p.yz).xyz;
-    vec3 tc = texture(channel, p.xz).xyz;
-    return (ta * ta + tb * tb + tc * tc) / 3.0;
+vec3 GetNormal(vec3 p) {
+	float d = GetDist(p);
+    vec2 e = vec2(.001, 0);
+    
+    vec3 n = d - vec3(
+        GetDist(p-e.xyy),
+        GetDist(p-e.yxy),
+        GetDist(p-e.yyx));
+    
+    return normalize(n);
 }
 
-void mainImage(out vec4 fragColor, in vec2 fragCoord)
+vec3 GetRayDir(vec2 uv, vec3 p, vec3 l, float z) {
+    vec3 f = normalize(l-p),
+        r = normalize(cross(vec3(0,1,0), f)),
+        u = cross(f,r),
+        c = f*z,
+        i = c + uv.x*r + uv.y*u,
+        d = normalize(i);
+    return d;
+}
+
+void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {
-    vec2 uv = fragCoord.xy / iResolution.xy;
-    uv = uv * 2.0 - 1.0;
-    uv.x *= iResolution.x / iResolution.y;
-    uv *= 2.5;
+    vec2 uv = (fragCoord-.5*iResolution.xy)/iResolution.y;
+	vec2 m = iMouse.xy/iResolution.xy;
 
-    vec3 o = vec3(0.0, 0.0, iTime * 2.0);
-    vec3 r = normalize(vec3(uv, 1.5));
+    vec3 ro = vec3(0, 3, -3);
+    ro.yz *= Rot(-m.y*PI+1.);
+    ro.xz *= Rot(-m.x*TAU);
+    
+    vec3 rd = GetRayDir(uv, ro, vec3(0,0.,0), 1.);
+    vec3 col = vec3(0);
+   
+    float d = RayMarch(ro, rd);
 
-    o.x = -sin(o.z * scale);
-    o.y = -cos(o.z * scale) * sin(o.z * scale);
+    if(d<MAX_DIST) {
+        vec3 p = ro + rd * d;
+        vec3 n = GetNormal(p);
+        vec3 r = reflect(rd, n);
 
-    r.xy *= rot(iTime * 0.2);
-
-    float t = trace(o, r);
-    vec3 w = o + r * t;
-    float fd = map(w);
-
-    vec3 tex1 = textex(iChannel0, texw);
-    tex1 = 1.0 - pow(1.0 - tex1, vec3(2.0));
-    vec3 tex2 = textex(iChannel1, texw);
-    tex2 = 1.0 - pow(1.0 - tex2, vec3(2.0, 3.0, 2.0));
-
-    vec3 tex = tex1;
-    if (mapw > 2.0)
-    {
-        tex = tex2;
+        float dif = dot(n, normalize(vec3(1,2,3)))*.5+.5;
+        col = vec3(dif);
     }
-
-    float fog = 1.0 / (1.0 + t * t * t * 0.01 + fd * 100.0);
-
-    vec3 fc = tex * vec3(fog);
-
-    fragColor = vec4(sqrt(fc), 1.0);
+    
+    col = pow(col, vec3(.4545));	// gamma correction
+    
+    fragColor = vec4(col,1.0);
 }
