@@ -1,7 +1,7 @@
 SRC = $(shell find src -name *.cpp)
 OBJ = $(patsubst %.cpp,%.obj,$(SRC))
 CC = g++
-FLAGS = -g -O0 -std=c++17
+FLAGS = -g -O4 -std=c++17 -DUSE_PL=1 -DPL_IMPL_AUTO_INSTRUMENT=1	
 LIBS = -lglfw -lGL
 TARGET = bin/main.bin
 

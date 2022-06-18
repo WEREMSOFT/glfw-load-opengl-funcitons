@@ -16,14 +16,14 @@ float T = iTime;
 float getDist(vec3 p)
 {
     vec2 k = {1., .2};
-    vec3 kp = {0., 1.5, 6.};
+    vec3 kp = {0., 1.5, 0.};
     vec3 pk = p - kp;
 
-    mat2 m = getRot(PI / 2);
+    // mat2 m = getRot(PI / 2);
 
-    pk.yz *= m;
-    m = getRot(T / 2);
-    pk.xz *= m;
+    // pk.yz *= m;
+    // m = getRot(T / 2);
+    // pk.xz *= m;
 
     vec2 ck = vec2(length(pk.xz) - k.x, pk.y);
 
@@ -96,21 +96,25 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
     vec2 uv = (fragCoord - .5 * iResolution.xy) / iResolution.y;
     float id = uv.x + uv.y;
     T = iTime * id;
-    uv = fract(uv * 4.) - .5;
+    // uv = fract(uv * ceil(iTime)) - .5;
 
-    vec3 ro = vec3(0., 1., 0.);
+    vec3 ro = vec3(0., 1. + (.5 * sin(iTime)), 6.);
+    ro.xz *= getRot(iTime);
+
     vec3 rd = normalize(vec3(uv, 1.));
+    rd.xz *= -getRot(iTime);
     float d = rayMarch(ro, rd, MAX_DIST);
 
     vec3 col = getBg(rd);
 
+    vec3 p = ro + rd * d;
+    vec3 r = reflect(rd, getNormal(p));
+    vec4 refl = texture(iChannel4, r);
     if (d < MAX_DIST)
     {
-        vec3 p = ro + rd * d;
-        vec3 r = reflect(rd, getNormal(p));
         float spec = pow(max(0., r.y), 70.);
         col = vec3(getLight(p)) + getBg(r) * .7;
-        col = col * .5 + spec;
+        col = refl.xyz * .5 + spec + col * .2; //   +spec; // + (refl.xyz * .1);
     }
-    fragColor = vec4(col, 1.);
+    fragColor = vec4(col, 1.) + texture(iChannel4, p) * .5; // * .5 + vec4(col, 1.);
 }

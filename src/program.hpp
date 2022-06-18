@@ -3,6 +3,7 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <vector>
+#include <stdlib.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -93,14 +94,12 @@ public:
 
         while (!glfwWindowShouldClose(window))
         {
-
             if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             {
                 glfwSetWindowShouldClose(window, true);
             }
 
             frame++;
-
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, texture[0]);
             glActiveTexture(GL_TEXTURE1);
@@ -110,7 +109,7 @@ public:
             glActiveTexture(GL_TEXTURE3);
             glBindTexture(GL_TEXTURE_2D, texture[3]);
             glActiveTexture(GL_TEXTURE4);
-            glBindTexture(GL_TEXTURE_2D, texture[4]);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, texture[4]);
             glUniform3f(uniformScreenSizeLocation, Program::screenWidth, Program::screenHeight, 1.0);
 
             glUniform1f(timeUniformLocation, glfwGetTime());
