@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <vector>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -17,7 +18,7 @@ class Program
     unsigned int VBO, VAO, EBO;
     inline static int screenWidth = SCREEN_WIDTH;
     inline static int screenHeight = SCREEN_HEIGHT;
-    unsigned int texture[4];
+    unsigned int texture[5];
 
     static void frameBufferSizeCallback(GLFWwindow *window, int width, int height)
     {
@@ -108,6 +109,8 @@ public:
             glBindTexture(GL_TEXTURE_2D, texture[2]);
             glActiveTexture(GL_TEXTURE3);
             glBindTexture(GL_TEXTURE_2D, texture[3]);
+            glActiveTexture(GL_TEXTURE4);
+            glBindTexture(GL_TEXTURE_2D, texture[4]);
             glUniform3f(uniformScreenSizeLocation, Program::screenWidth, Program::screenHeight, 1.0);
 
             glUniform1f(timeUniformLocation, glfwGetTime());
@@ -159,10 +162,50 @@ public:
         loadTexture("assets/channel1.png", "iChannel1", 1, &texture[1]);
         loadTexture("assets/channel3.png", "iChannel2", 2, &texture[2]);
         loadTexture("assets/channel2.png", "iChannel3", 3, &texture[3]);
+
+        std::vector<std::string> faces = {
+            "assets/cubemap/right.jpg",
+            "assets/cubemap/left.jpg",
+            "assets/cubemap/top.jpg",
+            "assets/cubemap/bottom.jpg",
+            "assets/cubemap/front.jpg",
+            "assets/cubemap/back.jpg"};
+
+        texture[4] = loadCubemap(faces);
     }
 
-    void
-    loadTexture(const char *fileName, const char *channel, int textureLocation, unsigned int *textId)
+    unsigned int loadCubemap(std::vector<std::string> faces)
+    {
+        unsigned int textureID;
+        glGenTextures(1, &textureID);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+        int width, height, nrChannels;
+        for (unsigned int i = 0; i < faces.size(); i++)
+        {
+            unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+            if (data)
+            {
+                glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                             0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+                stbi_image_free(data);
+            }
+            else
+            {
+                std::cout << "Cubemap tex failed to load at path: " << faces[i] << std::endl;
+                stbi_image_free(data);
+            }
+        }
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+        return textureID;
+    }
+
+    void loadTexture(const char *fileName, const char *channel, int textureLocation, unsigned int *textId)
     {
         glGenTextures(1, textId);
         glBindTexture(GL_TEXTURE_2D, *textId);
