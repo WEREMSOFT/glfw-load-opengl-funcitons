@@ -1,11 +1,14 @@
-SRC = $(shell find src -name *.cpp)
+SRC = $(shell find src -name *.cpp) $(shell find libs/imgui -name *.cpp)
 OBJ = $(patsubst %.cpp,%.obj,$(SRC))
 CC = g++
-FLAGS = -g -O4 -std=c++17 -DUSE_PL=1 -DPL_IMPL_AUTO_INSTRUMENT=1	
+FLAGS = -g -O4 -std=c++17 
 LIBS = -lglfw -lGL
 TARGET = bin/main.bin
 
-all: clean copy_assets $(OBJ)
+all:  copy_assets $(OBJ)
+	$(CC) $(FLAGS) $(OBJ) -o $(TARGET) $(LIBS)
+
+all_clean: clean copy_assets $(OBJ)
 	$(CC) $(FLAGS) $(OBJ) -o $(TARGET) $(LIBS)
 
 clean:
